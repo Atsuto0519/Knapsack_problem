@@ -26,7 +26,7 @@ def make_biontandscore(MAX_biont) :
 
 # エリート保存戦略関数
 # 上位num_eliteまでをエリートとして返す
-# 使い方:elite.append(extract_elite(biont, biont_score))
+# 使い方:elite.extend(extract_elite(biont, biont_score))
 def extract_elite(biont, biont_score, num_elite=2) :
     tmp = list(biont_score)
     tmp.sort(key=itemgetter(1))
