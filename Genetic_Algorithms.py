@@ -21,8 +21,8 @@ def make_biontandscore(MAX_biont) :
                     biont_score[i][0] += w[j]
                     biont_score[i][1] += v[j]
         biont.append(tmp)
-
     return biont, biont_score
+
 
 # エリート保存戦略関数
 # 上位num_eliteまでをエリートとして返す
@@ -34,13 +34,11 @@ def extract_elite(biont, biont_score, num_elite=2) :
     elite = []
     for i in range(2) :
         elite.append(biont[biont_score.index(tmp[i])])
-
     return elite
 
 
 # シード値を設定(再現させるため)
 random.seed(0)
-
 # 商品の数
 N = 10
 # ナップサックの入れられる重さ
@@ -62,15 +60,16 @@ print(v)
 
 # 個体をMAX_biontだけ生成する
 MAX_biont = 10
-biont, biont_score = make_biontandscore(MAX_biont)
-print("biont")
-print(biont)
-print("biont_score")
-print(biont_score)
+#biont, biont_score = make_biontandscore(MAX_biont)
 
 # 価値が最大のものを抽出しエリート保存戦略する
 # ここでは上位二個
 elite = []
+biont, biont_score = make_biontandscore(MAX_biont)
 elite.extend(extract_elite(biont, biont_score))
+print("biont")
+print(biont)
+print("biont_score")
+print(biont_score)
 print("elite")
 print(elite)
