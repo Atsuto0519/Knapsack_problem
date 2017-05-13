@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import copy
 from operator import itemgetter
 
-import Knapsack
+import knapsack
 
 # シード値を設定(再現させるため)
 random.seed(33)

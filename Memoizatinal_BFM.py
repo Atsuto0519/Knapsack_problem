@@ -3,7 +3,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-import Knapsack
+import knapsack
 
 # シード値を設定(再現させるため)
 random.seed(151)
