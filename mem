@@ -1,0 +1,65 @@
+# 使い方:elite.extend(extract_elite(biont, biont_score))
+def extract_elite(biont, biont_score, num_elite=0) :
+    # num_eliteが未指定(又は0)なら降順に遺伝子を全出力
+    # 負はありえないので['Error.']を出力
+    if (num_elite == 0) :
+        num_elite = len(biont)
+    elif (num_elite < 0) :
+        return ['Error.']
+
+    tmp = list(biont_score)
+    tmp.sort(key=itemgetter(1))
+    tmp.reverse()
+    elite = []
+    for i in range(num_elite) :
+        elite.append(biont[biont_score.index(tmp[i])])
+    return elite
+
+# 適当にランダムな個体biontをMAX_biontだけ生成
+# 評価するbiontをbiont_scoreで評価
+def make_biontandscore(MAX_biont) :
+    # biont[i][j]=1ならj番目の商品をナップサックに入れる個体i
+    biont = []
+    # biont_score[i]=[bW, bV] (bW:個体の総重量, bV:個体の総合価値)
+    biont_score = [[0 for i in range(2)] for j in range(MAX_biont)]
+    for i in range(MAX_biont) :
+        tmp = []
+        for j in range(N) :
+            tmp.append(random.randint(0,1))
+            if (tmp[j]) :
+                # 入れる商品の重さがナップサックに入るなら入れる
+                if (biont_score[i][0]+w[j] <= W) :
+                    biont_score[i][0] += w[j]
+                    biont_score[i][1] += v[j]
+        biont.append(tmp)
+    return biont, biont_score
+
+
+#biont, biont_score = make_biontandscore(MAX_biont)
+
+# w[i]:i番目商品の重さ
+# v[i]:i番目商品の価値
+# item:ナップサックに入れた価値リスト
+w = []
+v = []
+# w,vを1~100のランダムに設定
+for i in range(N) :
+    w.append(random.randint(1,100))
+    v.append(random.randint(1,100))
+print("w")
+print(w)
+print("v")
+print(v)
+
+
+#WeightandValue = []
+#for i in range(N) :
+#    WeightandValue.append([w[i], v[i]])
+
+
+#biont, biont_score = make_biontandscore(MAX_biont)
+#elite.extend(extract_elite(biont, biont_score, 2))
+#print("biont")
+#print(biont)
+#print("biont_score")
+#print(biont_score)
