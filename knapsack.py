@@ -1,3 +1,4 @@
+# coding:utf-8
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -30,9 +31,25 @@ def extract_elite(bionts, num_elite=0) :
         value_all.append(i.value)
 
     for i in range(num_elite) :
-        elite.append(bionts[value_all.index(max(value_all))].copy())
+        elite.append(bionts[value_all.index(max(value_all))])
         value_all[value_all.index(max(value_all))] = -1
-    return elite
+    return elite.copy()
+
+def extract_botom(bionts, num_botoms=0) :
+    """悪い形質を抽出
+    """
+    if (num_botoms<1) :
+        num_botoms = len(bionts)
+
+    value_all = []
+    botom = []
+    for i in bionts :
+        value_all.append(i.value)
+
+    for i in range(num_botoms) :
+        botom.append(bionts[value_all.index(min(value_all))])
+        value_all[value_all.index(min(value_all))] = -1
+    return botom.copy()
 
 def make_randdata(N=0, *, MIN_data=1, MAX_data=100) :
     """適当にランダムデータを生成する．
@@ -81,22 +98,18 @@ def somepoints_crossover(twin_bionts, *, start_point=0, end_point=0) :
         gene_yx.extend(gene_yy[start_point:end_point].copy())
         gene_yx.extend(gene_xx[end_point:len_gene_xx].copy())
 
-        # もし子がナップサックの容量を超えていなかったら
-        twin_bionts[0].weight = 0
-        twin_bionts[1].weight = 0
+        # もし子がナップサックの容量を超えていなかったら交叉
+        dot_xy = np.dot(gene_xy, twin_bionts[0].WeightandValue)
+        dot_yx = np.dot(gene_yx, twin_bionts[0].WeightandValue)
         for i in range(len_gene_xx) :
-            # 入れる商品の重さがナップサックに入るなら入れる
-            if (twin_bionts[0].weight+(twin_bionts[0].WeightandValue[i][0]*gene_xy[i]) <= MAX_weight) :
+            if (dot_xy[0] <= MAX_weight and dot_xy[1] > twin_bionts[0].value) :
                 twin_bionts[0].gene[i] = gene_xy[i]
-                twin_bionts[0].weight += twin_bionts[0].WeightandValue[i][0]*gene_xy[i]
-            else :
-                twin_bionts[0].gene[i] = 0
-
-            if (twin_bionts[1].weight+(twin_bionts[1].WeightandValue[i][0]*gene_yx[i]) <= MAX_weight) :
+            if (dot_yx[0] <= MAX_weight and dot_yx[1] > twin_bionts[1].value) :
                 twin_bionts[1].gene[i] = gene_yx[i]
-                twin_bionts[1].weight += twin_bionts[1].WeightandValue[i][0]*gene_yx[i]
-            else :
-                twin_bionts[1].gene[i] = 0
+        for i in twin_bionts :
+            i.updateinfo()
+        # if (twin_bionts[0].weight == dot_xy[0] or twin_bionts[1].weight == dot_yx[0]) :
+        #     print("Done crossover.")
 
 def roulette_choice(bionts, MIN_data=1, MAX_data=100) :
     """ルーレット選択を行う関数
@@ -105,6 +118,7 @@ def roulette_choice(bionts, MIN_data=1, MAX_data=100) :
     value_all = []
     # 適合度割合を求める
     for i in bionts :
+        i.updateinfo()
         value_all.append(i.value)
     p_all = []
     sum_value = sum(value_all)
@@ -117,11 +131,11 @@ def roulette_choice(bionts, MIN_data=1, MAX_data=100) :
     nearest_value = p_all[random.randint(0, len(p_all)-1)]
     for i in range(2) :
         # ルーレットを回す
-        rand_raito = random.uniform(0, 1)
+        rand_raito = random.random()
         # すでに選ばれたものが出た場合は出なくなるまで回す
         while (nearest_value == getNearestValue(p_all, rand_raito)) :
             # ルーレットを回す
-            rand_raito = random.uniform(0, 1)
+            rand_raito = random.random()
         # 回した値に最も近い値をリストから取る
         nearest_value = getNearestValue(p_all, rand_raito)
         nearest_index = p_all.index(nearest_value)
@@ -194,13 +208,13 @@ class Genetic_Biont :
             p = 0
 
         self.updateinfo()
-        for i in range(len(self.gene)) :
-            # 突然変異発生なら
-            if (random.random() < p) :
-                not_gene = (self.gene[i]&1)^1
-                if (self.weight + not_gene*self.WeightandValue[i][0] <= MAX_weight) :
-                    self.gene[i] = not_gene
-                    self.weight += self.gene[i]*self.WeightandValue[i][0]
+        # ランダムに遺伝子を決定
+        rand_index = random.randint(0, len(self.gene)-1)
+        # 突然変異発生なら
+        if (random.random() < p) :
+            not_gene = (self.gene[rand_index]&1)^1
+            if (self.weight + not_gene*self.WeightandValue[rand_index][0] <= MAX_weight) :
+                 self.gene[rand_index] = not_gene
         self.updateinfo()
 
 def rec_dp(i, j, dp, WeightandValue):
@@ -227,11 +241,11 @@ def rec_dp(i, j, dp, WeightandValue):
 
 
 # 商品の数
-N = 10
+N = 20
 # ナップサックの入れられる重さ
-MAX_weight = 100
+MAX_weight = 250
 # 個体をMAX_biontだけ生成する
-MAX_biont = 10
+MAX_biont = 30
 # エリート保存数
 MAX_elite = 1
 # WeightandValue[i][0]:i番目商品の重さ
