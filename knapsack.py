@@ -5,17 +5,29 @@ import matplotlib.pyplot as plt
 import copy
 from operator import itemgetter
 
-def getNearestValue(list, num):
+def getLearningCurve(elite, scale):
+    """
+    概要:　リストの場所に相当する適合度を出力
+    @param elite: もっともよい世代ごとの個体
+    @param scale: もっとも良い個体の適合度
+    @return もっともよい世代ごとの個体に対する適合度リスト
+    """
+    res = []
+    for i in elite :
+        res.append(i.value/scale)
+    return res
+
+def getNearestValue(table, num):
     """
     概要: リストからある値に最も近い値を返却する関数
-    @param list: データ配列
+    @param table: データ配列
     @param num: 対象値
     @return 対象値に最も近い値
     """
 
     # リスト要素と対象値の差分を計算し最小値のインデックスを取得
-    idx = np.abs(np.asarray(list) - num).argmin()
-    return list[idx]
+    idx = np.abs(np.asarray(table) - num).argmin()
+    return table[idx]
 
 def extract_elite(bionts, num_elite=0) :
     """エリート保存戦略関数
@@ -72,6 +84,8 @@ def somepoints_crossover(twin_bionts, *, start_point=0, end_point=0) :
     第二引数:start_point（要素数）
     第三引数:end_point  (要素数)
     """
+    res = 0
+
     gene_xx = twin_bionts[0].gene
     gene_yy = twin_bionts[1].gene
     len_gene_xx = len(gene_xx)
@@ -108,8 +122,11 @@ def somepoints_crossover(twin_bionts, *, start_point=0, end_point=0) :
                 twin_bionts[1].gene[i] = gene_yx[i]
         for i in twin_bionts :
             i.updateinfo()
-        # if (twin_bionts[0].weight == dot_xy[0] or twin_bionts[1].weight == dot_yx[0]) :
-        #     print("Done crossover.")
+        if (twin_bionts[0].weight == dot_xy[0] or twin_bionts[1].weight == dot_yx[0]) :
+            #print("Done crossover.")
+            res = 1
+
+    return res
 
 def roulette_choice(bionts, MIN_data=1, MAX_data=100) :
     """ルーレット選択を行う関数
@@ -243,9 +260,9 @@ def rec_dp(i, j, dp, WeightandValue):
 # 商品の数
 N = 20
 # ナップサックの入れられる重さ
-MAX_weight = 250
+MAX_weight = 600
 # 個体をMAX_biontだけ生成する
-MAX_biont = 30
+MAX_biont = 10
 # エリート保存数
 MAX_elite = 1
 # WeightandValue[i][0]:i番目商品の重さ
